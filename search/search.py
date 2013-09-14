@@ -133,12 +133,12 @@ def breadthFirstSearch(problem):
   East = Directions.EAST
   North = Directions.NORTH
 
-  state_queue= util.PriorityQueue();
+  state_queue= util.Queue();
   visited = set()
   parents = dict()
   direction = dict()
   path = list()
-  state_queue.push(problem.getStartState(),0)
+  state_queue.push(problem.getStartState())
   parents[problem.getStartState()] = (-1,-1);
   direction[problem.getStartState()] = "null";
   
@@ -157,7 +157,7 @@ def breadthFirstSearch(problem):
           direction[child[0]] = child[1]
           break
         else:  
-          state_queue.push(child[0],i)
+          state_queue.push(child[0])
           visited.add(child[0])
           parents[child[0]]=curr_state 
           direction[child[0]]=child[1]
