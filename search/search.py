@@ -122,11 +122,53 @@ def depthFirstSearch(problem):
   path.reverse()
   print path
   return path
-  util.raiseNotDefined()
+  "util.raiseNotDefined()"
 
 def breadthFirstSearch(problem):
   "Search the shallowest nodes in the search tree first. [p 81]"
   "*** YOUR CODE HERE ***"
+  from game import Directions
+  South = Directions.SOUTH
+  West = Directions.WEST
+  East = Directions.EAST
+  North = Directions.NORTH
+
+  state_queue= util.PriorityQueue();
+  visited = set()
+  parents = dict()
+  direction = dict()
+  path = list()
+  state_queue.push(problem.getStartState(),0)
+  parents[problem.getStartState()] = (-1,-1);
+  direction[problem.getStartState()] = "null";
+  
+  visited.add(problem.getStartState());
+  i=0
+  while not state_queue.isEmpty():
+    curr_state = state_queue.pop()
+    children = problem.getSuccessors(curr_state)
+   
+    for child in children:
+      i = i+1
+      if child[0] not in visited:
+        if problem.isGoalState(child[0]):
+          goal = child
+          parents[child[0]]=curr_state
+          direction[child[0]] = child[1]
+          break
+        else:  
+          state_queue.push(child[0],i)
+          visited.add(child[0])
+          parents[child[0]]=curr_state 
+          direction[child[0]]=child[1]
+  child = goal[0]
+ 
+  while direction[child] != "null":
+    path.append(direction[child])
+    child = parents[child]
+  path.reverse()
+  print path
+  return path
   util.raiseNotDefined()
       
 def uniformCostSearch(problem):
