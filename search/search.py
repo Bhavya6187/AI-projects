@@ -11,8 +11,7 @@ In search.py, you will implement generic search algorithms which are called
 by Pacman agents (in searchAgents.py).
 """
 
-import util
-
+import util 
 class SearchProblem:
   """
   This class outlines the structure of a search problem, but doesn't implement
@@ -108,6 +107,7 @@ def depthFirstSearch(problem):
           goal = child
           parents[child[0]]=curr_state
           direction[child[0]] = child[1]
+          state_stack.empty() 
           break
         else:  
           state_stack.push(child[0])
@@ -155,6 +155,7 @@ def breadthFirstSearch(problem):
           goal = child
           parents[child[0]]=curr_state
           direction[child[0]] = child[1]
+          state_queue.empty() 
           break
         else:  
           state_queue.push(child[0])
@@ -171,10 +172,61 @@ def breadthFirstSearch(problem):
   return path
   util.raiseNotDefined()
       
+
 def uniformCostSearch(problem):
   "Search the node of least total cost first. "
   "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+
+  from game import Directions
+  South = Directions.SOUTH
+  West = Directions.WEST
+  East = Directions.EAST
+  North = Directions.NORTH
+
+  state_queue= util.PriorityQueue();
+  visited = set()
+  parents = dict()
+  direction = dict()
+  cost = dict()
+  path = list()
+  state_queue.push(problem.getStartState(),0)
+  parents[problem.getStartState()] = (-1,-1);
+  direction[problem.getStartState()] = "null";
+  
+  cost[problem.getStartState()] = 0;
+  i=0
+  goalcost = float("inf")
+  " print cost"
+  while not state_queue.isEmpty():
+    curr_state = state_queue.pop()
+    if curr_state in visited:
+      continue
+    children = problem.getSuccessors(curr_state)
+    visited.add(curr_state)
+    if(cost[curr_state] > goalcost ):
+      break
+    for child in children:
+      i = i+1
+      if child[0] not in visited:
+        if problem.isGoalState(child[0]):
+          goal = child
+          parents[child[0]]=curr_state
+          direction[child[0]] = child[1]
+          if(  cost[curr_state]+child[2] < goalcost):
+            goalcost=child[2]+cost[curr_state]
+          break
+        else:  
+          state_queue.push(child[0],child[2] +cost[curr_state])
+          cost[child[0]] = child[2] + cost[curr_state]
+          parents[child[0]]=curr_state
+          direction[child[0]]=child[1]
+
+  child = goal[0]
+  while direction[child] != "null":
+    path.append(direction[child])
+    child = parents[child]
+  path.reverse()
+  return path
 
 def nullHeuristic(state, problem=None):
   """
@@ -186,6 +238,58 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
   "Search the node that has the lowest combined cost and heuristic first."
   "*** YOUR CODE HERE ***"
+  from game import Directions
+  South = Directions.SOUTH
+  West = Directions.WEST
+  East = Directions.EAST
+  North = Directions.NORTH
+
+  state_queue= util.PriorityQueue();
+  visited = set()
+  parents = dict()
+  direction = dict()
+  cost = dict()
+  path = list()
+  state_queue.push(problem.getStartState(),0)
+  parents[problem.getStartState()] = (-1,-1);
+  direction[problem.getStartState()] = "null";
+  
+  cost[problem.getStartState()] = 0;
+  i=0
+  goalcost = float("inf")
+  " print cost"
+  while not state_queue.isEmpty():
+    curr_state = state_queue.pop()
+    if curr_state in visited:
+      continue
+    children = problem.getSuccessors(curr_state)
+    visited.add(curr_state)
+    if(cost[curr_state] +  heuristic(curr_state,problem)> goalcost ):
+      print cost[curr_state],goalcost,heuristic(curr_state,problem),curr_state,problem.getStartState()
+      break
+    for child in children:
+      i = i+1
+      if child[0] not in visited:
+        if problem.isGoalState(child[0]):
+          goal = child
+          parents[child[0]]=curr_state
+          direction[child[0]] = child[1]
+          if(  cost[curr_state]+child[2] < goalcost):
+            goalcost=child[2]+cost[curr_state]
+          break
+        else:  
+          state_queue.push(child[0],child[2] + heuristic(child[0],problem) +cost[curr_state])
+          cost[child[0]] = child[2] + cost[curr_state]
+          parents[child[0]]=curr_state
+          direction[child[0]]=child[1]
+
+  child = goal[0]
+  while direction[child] != "null":
+    path.append(direction[child])
+    child = parents[child]
+  path.reverse()
+  "print patti"
+  return path
   util.raiseNotDefined()
     
   
