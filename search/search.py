@@ -149,6 +149,7 @@ def breadthFirstSearch(problem):
     children = problem.getSuccessors(curr_state)
    
     for child in children:
+      print child
       i = i+1
       if child[0] not in visited:
         if problem.isGoalState(child[0]):
@@ -209,10 +210,10 @@ def uniformCostSearch(problem):
       i = i+1
       if child[0] not in visited:
         if problem.isGoalState(child[0]):
-          goal = child
-          parents[child[0]]=curr_state
-          direction[child[0]] = child[1]
           if(  cost[curr_state]+child[2] < goalcost):
+            goal = child
+            parents[child[0]]=curr_state
+            direction[child[0]] = child[1]
             goalcost=child[2]+cost[curr_state]
           break
         else:  
@@ -271,10 +272,10 @@ def aStarSearch(problem, heuristic=nullHeuristic):
       i = i+1
       if child[0] not in visited:
         if problem.isGoalState(child[0]):
-          goal = child
-          parents[child[0]]=curr_state
-          direction[child[0]] = child[1]
           if(  cost[curr_state]+child[2] < goalcost):
+            goal = child
+            parents[child[0]]=curr_state
+            direction[child[0]] = child[1]
             goalcost=child[2]+cost[curr_state]
           break
         else:  
