@@ -384,14 +384,11 @@ def cornersHeuristic(state, problem):
   corners = problem.corners # These are the corner coordinates
   walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
   position = state[0]
-  heu = 10000000
+  sum = 0000000
   for i in range(0,len(state[1])):
-    sum = abs(position[0] - state[1][i][0])+abs(position[1] - state[1][i][1])
+    sum += abs(position[0] - state[1][i][0])+abs(position[1] - state[1][i][1])
     """print state,state[1][i]"""
-    if(sum < heu):
-      heu = sum
-  print heu
-  return heu
+  return sum
 
   "*** YOUR CODE HERE ***"
 
@@ -483,8 +480,31 @@ def foodHeuristic(state, problem):
   Subsequent calls to this heuristic can access problem.heuristicInfo['wallCount']
   """
   position, foodGrid = state
+  
   "*** YOUR CODE HERE ***"
-  return 0
+  foodlist = foodGrid.asList()
+  foodcoord = foodlist[0]
+  mini = float("inf")
+  for coord in foodlist:
+    tmpdist = abs(position[0]-coord[0]) + abs(position[1]-coord[1])
+    if(mini > tmpdist):
+      mini = tmpdist
+      foodcoord = coord
+  
+  foodlist.remove(coord)
+  while len(foodlist)>0:
+    dist = float("inf")
+    foodcoord = []
+    for food in foodlist:
+      tmpDist = abs(food[0]-coord[0]) + abs(food[1]-coord[1])
+      if(dist > tmpDist):
+        dist = tmpDist
+        coord2 = food
+    mini += dist
+    coord = coord2
+    foodlist.remove(coord)
+    
+  return mini
   
 class ClosestDotSearchAgent(SearchAgent):
   "Search for all food using a sequence of searches"

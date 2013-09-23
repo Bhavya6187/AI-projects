@@ -149,7 +149,7 @@ def breadthFirstSearch(problem):
     children = problem.getSuccessors(curr_state)
    
     for child in children:
-      print child
+      print child, child[0]
       i = i+1
       if child[0] not in visited:
         if problem.isGoalState(child[0]):
@@ -257,6 +257,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
   
   cost[problem.getStartState()] = 0;
   i=0
+  grid = problem.getStartState()[1]
   goalcost = float("inf")
   " print cost"
   while not state_queue.isEmpty():
@@ -266,7 +267,6 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     children = problem.getSuccessors(curr_state)
     visited.add(curr_state)
     if(cost[curr_state] +  heuristic(curr_state,problem)> goalcost ):
-      print cost[curr_state],goalcost,heuristic(curr_state,problem),curr_state,problem.getStartState()
       break
     for child in children:
       i = i+1
