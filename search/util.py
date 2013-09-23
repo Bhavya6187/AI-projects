@@ -31,6 +31,8 @@ class Stack:
   def isEmpty(self):
     "Returns true if the stack is empty"
     return len(self.list) == 0
+  def empty(self):
+    del self.list[:]
 
 class Queue:
   "A container with a first-in-first-out (FIFO) queuing policy."
@@ -51,6 +53,8 @@ class Queue:
   def isEmpty(self):
     "Returns true if the queue is empty"
     return len(self.list) == 0
+  def empty(self):
+    del self.list[:]
   
 class PriorityQueue:
   """
@@ -77,6 +81,8 @@ class PriorityQueue:
   def isEmpty(self):
     return len(self.heap) == 0
 
+  def empty(self):
+    del self.heap[:]
 class PriorityQueueWithFunction(PriorityQueue):
   """
   Implements a priority queue with the same push/pop signature of the
