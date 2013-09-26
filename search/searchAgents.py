@@ -276,6 +276,9 @@ class CornersProblem(search.SearchProblem):
   def __init__(self, startingGameState):
     """
     Stores the walls, pacman's starting position and corners.
+    The state chosen here consists of the format ((coordinates,(corners not visited)),'action','cost')
+    Once a corner is reached , it is removed from the corners not visited list. 
+    Hence, only paths which visit all the 4 corners visited and all the elements in (corners not visited) tuple can have their path considered for the goal state
     """
     self.walls = startingGameState.getWalls()
     self.startingPosition = startingGameState.getPacmanPosition()
@@ -291,8 +294,6 @@ class CornersProblem(search.SearchProblem):
 
     self.startState = (self.startingPosition,self.corners)
     
-    
-    
   def getStartState(self):
     "Returns the start state (in your state space, not the full Pacman state space)"
     "*** YOUR CODE HERE ***"
@@ -305,7 +306,7 @@ class CornersProblem(search.SearchProblem):
     
     isGoal = True
     
-    #if there is no food in the tuple, the tuple number will be zero
+    "It passes true if all the corners have been visited and the tuple 'corners not visited' has no element in it"
     if len(state[1]) !=0:
         isGoal = False
     
@@ -325,27 +326,17 @@ class CornersProblem(search.SearchProblem):
     
     successors = []
     for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-      # Add a successor state to the successor list if the action is legal
-      # Here's a code snippet for figuring out whether a new position hits a wall:
-      #   x,y = currentPosition
-      #   dx, dy = Actions.directionToVector(action)
-      #   nextx, nexty = int(x + dx), int(y + dy)
-      #   hitsWall = self.walls[nextx][nexty]
       
-      "*** YOUR CODE HERE ***"
+      "We check if the location of the successor has food. If it has food, its location is removed from not visited list"
       x,y = state[0]
       dx, dy = Actions.directionToVector(action)
-      #calcuate the next position
       nextx, nexty = int(x + dx), int(y + dy)
       if not self.walls[nextx][nexty]:
         nextState = (nextx, nexty)
-        #if the next position is one of the food position, 
-        #then remove this food information from the state's information
-        #namely, remove it from the tuple in state
         if nextState in state[1]:
-            tmpList = list(state[1])
-            tmpList.remove(nextState)
-            successors.append( ( (nextState,tuple(tmpList)), action, 1) )
+            notvisitedList = list(state[1])
+            notvisitedList.remove(nextState)
+            successors.append( ( (nextState,tuple(notvisitedList)), action, 1) )
         else:
             successors.append( ( (nextState,state[1]), action, 1) )
       
@@ -380,17 +371,19 @@ def cornersHeuristic(state, problem):
   on the shortest path from the state to a goal of the problem; i.e.
   it should be admissible.  (You need not worry about consistency for
   this heuristic to receive full credit.)
+
+  Maxi is the current heuristic we are using. It denotes the maximum distance the node has from a corner. We compare the distances between nodes and the corners and return the maximum of them. It expands 11400 nodes
   """
   corners = problem.corners # These are the corner coordinates
   walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
   position = state[0]
-  sum = 0000000
+  maxi = 0
   for i in range(0,len(state[1])):
-    sum += abs(position[0] - state[1][i][0])+abs(position[1] - state[1][i][1])
-    """print state,state[1][i]"""
-  return sum
-
-  "*** YOUR CODE HERE ***"
+    #print state
+    dis = abs(position[0]-state[1][i][0]) + abs(position[1]-state[1][i][1])
+    if(dis > maxi):
+      maxi = dis
+  return maxi
 
 class AStarCornersAgent(SearchAgent):
   "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -481,7 +474,7 @@ def foodHeuristic(state, problem):
   """
   position, foodGrid = state
   
-  "*** YOUR CODE HERE ***"
+  "The current heuristic we are using denotes the minimum spanning tree for the current position of the node. We start from the nearest food the node has. After that we keep recursively going to the next nearest node until we exhaust the list of food nodes. It expands close to 7100 nodes"
   foodlist = foodGrid.asList()
   foodcoord = foodlist[0]
   mini = float("inf")

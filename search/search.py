@@ -81,6 +81,14 @@ def depthFirstSearch(problem):
   print "Start's successors:", problem.getSuccessors(problem.getStartState())
   """
   "*** YOUR CODE HERE ***"
+  """
+  This function makes a generic implementation of DFS.Following variables are mainly used -
+  1. state_stack - It is the stack class imported from util class. It keeps track of the nodes to be expanded and pops the nodes depth first.
+  2. parents - It is used to backtrack the path of the node after it reaches the goal.
+  3. direction - This is also used to backtrack the path of the node once it reaches goal. It gives the exact direction to trace back.
+  4. visited - This keeps track of visited nodes so as to avoid a deadlock.
+  5. path - This is used to return the path to the main function
+  """
   from game import Directions
   South = Directions.SOUTH
   West = Directions.WEST
@@ -97,36 +105,49 @@ def depthFirstSearch(problem):
   direction[problem.getStartState()] = "null";
   
   visited.add(problem.getStartState());
+  goal = 0
+  "This while loop keep iterating till the stack gets empty or the goal is reached"
   while not state_stack.isEmpty():
     curr_state = state_stack.pop()
     children = problem.getSuccessors(curr_state)
-   
+    "This for loop iterates over the successor to put the elements in stack and stop once the goal is reached"
     for child in children:
       if child[0] not in visited:
         if problem.isGoalState(child[0]):
           goal = child
           parents[child[0]]=curr_state
           direction[child[0]] = child[1]
-          state_stack.empty() 
+          "state_stack.empty()"
+          del state_stack.list[:]
           break
         else:  
           state_stack.push(child[0])
           visited.add(child[0])
           parents[child[0]]=curr_state 
           direction[child[0]]=child[1]
+  if(goal == 0):
+    return None
   child = goal[0]
- 
+  "Here we start Backtracking" 
   while direction[child] != "null":
     path.append(direction[child])
     child = parents[child]
   path.reverse()
-  print path
   return path
-  "util.raiseNotDefined()"
 
 def breadthFirstSearch(problem):
   "Search the shallowest nodes in the search tree first. [p 81]"
   "*** YOUR CODE HERE ***"
+
+  """
+  This function makes a generic implementation of DFS.Following variables are mainly used -
+  1. state_queue - It is the queue class imported from util class. It keeps track of the nodes to be expanded and pops the nodes breadth first.
+  2. parents - It is used to backtrack the path of the node after it reaches the goal.
+  3. direction - This is also used to backtrack the path of the node once it reaches goal. It gives the exact direction to trace back.
+  4. visited - This keeps track of visited nodes so as to avoid a deadlock.
+  5. path - This is used to return the path to the main function
+  """
+  
   from game import Directions
   South = Directions.SOUTH
   West = Directions.WEST
@@ -144,40 +165,53 @@ def breadthFirstSearch(problem):
   
   visited.add(problem.getStartState());
   i=0
+  goal = 0
+  "This while loop keep iterating till the queue gets empty or the goal is reached"
   while not state_queue.isEmpty():
     curr_state = state_queue.pop()
     children = problem.getSuccessors(curr_state)
-   
+    "This for loop iterates over the successor to put the elements in queue and stop once the goal is reached"
     for child in children:
-      print child, child[0]
+      "print child, child[0]"
       i = i+1
       if child[0] not in visited:
         if problem.isGoalState(child[0]):
           goal = child
           parents[child[0]]=curr_state
           direction[child[0]] = child[1]
-          state_queue.empty() 
+          del state_queue.list[:]
+          "state_queue.empty() "
           break
         else:  
           state_queue.push(child[0])
           visited.add(child[0])
           parents[child[0]]=curr_state 
           direction[child[0]]=child[1]
+
+  if(goal == 0):
+    return None
   child = goal[0]
- 
+  "Here we start to backtrack" 
   while direction[child] != "null":
     path.append(direction[child])
     child = parents[child]
   path.reverse()
-  print path
   return path
-  util.raiseNotDefined()
       
 
 def uniformCostSearch(problem):
   "Search the node of least total cost first. "
   "*** YOUR CODE HERE ***"
 
+  """
+  This function makes a generic implementation of UCS.Following variables are mainly used -
+  1. state_queue - It is the priority queue class imported from util class. It keeps track of the nodes to be expanded and pops the nodes in order of their priotiy.
+  2. parents - It is used to backtrack the path of the node after it reaches the goal.
+  3. direction - This is also used to backtrack the path of the node once it reaches goal. It gives the exact direction to trace back.
+  4. visited - This keeps track of visited nodes so as to avoid a deadlock.
+  5. cost - this keeps track of the cost of the nodes and adds them to the child if needed.
+  6. path - This is used to return the path to the main function
+  """
   from game import Directions
   South = Directions.SOUTH
   West = Directions.WEST
@@ -198,6 +232,8 @@ def uniformCostSearch(problem):
   i=0
   goalcost = float("inf")
   " print cost"
+  goal=0
+  "This while loop keep iterating till the queue gets empty or the goal is reached"
   while not state_queue.isEmpty():
     curr_state = state_queue.pop()
     if curr_state in visited:
@@ -206,6 +242,7 @@ def uniformCostSearch(problem):
     visited.add(curr_state)
     if(cost[curr_state] > goalcost ):
       break
+    "This for loop iterates over the successor to put the elements in queue and stop once the goal is reached"
     for child in children:
       i = i+1
       if child[0] not in visited:
@@ -221,7 +258,9 @@ def uniformCostSearch(problem):
           cost[child[0]] = child[2] + cost[curr_state]
           parents[child[0]]=curr_state
           direction[child[0]]=child[1]
-
+  if(goal == 0):
+    return None
+  "Here we start to backtrack"
   child = goal[0]
   while direction[child] != "null":
     path.append(direction[child])
@@ -239,6 +278,15 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
   "Search the node that has the lowest combined cost and heuristic first."
   "*** YOUR CODE HERE ***"
+  """
+  This function makes a generic implementation of UCS.Following variables are mainly used -
+  1. state_queue - It is the priority queue class imported from util class. It keeps track of the nodes to be expanded and pops the nodes in order of their priotiy.
+  2. parents - It is used to backtrack the path of the node after it reaches the goal.
+  3. direction - This is also used to backtrack the path of the node once it reaches goal. It gives the exact direction to trace back.
+  4. visited - This keeps track of visited nodes so as to avoid a deadlock.
+  5. cost - this keeps track of the cost of the nodes and adds them to the child if needed.
+  6. path - This is used to return the path to the main function
+  """
   from game import Directions
   South = Directions.SOUTH
   West = Directions.WEST
@@ -259,7 +307,9 @@ def aStarSearch(problem, heuristic=nullHeuristic):
   i=0
   grid = problem.getStartState()[1]
   goalcost = float("inf")
+  goal = 0
   " print cost"
+  "This while loop keep iterating till the queue gets empty or the goal is reached"
   while not state_queue.isEmpty():
     curr_state = state_queue.pop()
     if curr_state in visited:
@@ -268,6 +318,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     visited.add(curr_state)
     if(cost[curr_state] +  heuristic(curr_state,problem)> goalcost ):
       break
+    "This for loop iterates over the successor to put the elements in queue and stop once the goal is reached"
     for child in children:
       i = i+1
       if child[0] not in visited:
@@ -283,15 +334,16 @@ def aStarSearch(problem, heuristic=nullHeuristic):
           cost[child[0]] = child[2] + cost[curr_state]
           parents[child[0]]=curr_state
           direction[child[0]]=child[1]
-
+  if(goal == 0):
+    return None
   child = goal[0]
+  "Here we start to backtrack"
   while direction[child] != "null":
     path.append(direction[child])
     child = parents[child]
   path.reverse()
   "print patti"
   return path
-  util.raiseNotDefined()
     
   
 # Abbreviations
