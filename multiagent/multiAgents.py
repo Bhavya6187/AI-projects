@@ -44,6 +44,7 @@ class ReflexAgent(Agent):
 
         # Choose one of the best actions
         scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
+        print self.evaluationFunction(gameState, action)
         bestScore = max(scores)
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
         chosenIndex = random.choice(bestIndices) # Pick randomly among the best
@@ -73,9 +74,41 @@ class ReflexAgent(Agent):
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+        #print newGhostStates[0], newGhostStates[0].getPosition(), newScaredTimes, newPos, successorGameState.getScore()
+        #print newScaredTimes[0]
+        #print successorGameState
+        #print "With Stop", currentGameState.getLegalActions()
+        # Collect legal moves and successor states
 
+        ghost_cost = float("inf")
+        for ghost in newGhostStates:
+          xy1 = newPos
+          xy2 = ghost.getPosition()
+          cost = (abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1]))
+          if ghost_cost > cost:
+            ghost_cost = cost
+       
+        #if(newScaredTimes>0) 
+        if(ghost_cost<3 and newScaredTimes[0]==0): 
+          return ghost_cost
+
+        minimum_cost = float("inf")
+        food_cordinates  = newFood.asList()
+        for food in food_cordinates:
+          xy1 = newPos
+          xy2 = food
+          cost = (abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1]))
+          if minimum_cost > cost:
+            minimum_cost = cost
+        
+        #if minimum_cost<2 :
+        # cost = ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
+        # print newFood 
+        
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        #return successorGameState.getScore()
+        return ghost_cost + (1/minimum_cost) + newScaredTimes[0] + successorGameState.getScore()
+        #return sum_cost
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -111,38 +144,121 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
       Your minimax agent (question 2)
     """
+    def Max_Pacman(self, gameState, depth):
+
+      final_action = Directions.STOP
+      if depth==0 or gameState.isWin() or gameState.isLose()  :
+        return [self.evaluationFunction(gameState), Directions.STOP]
+      legalMoves = gameState.getLegalActions(0)
+      # Remove "STOP action
+      actions = [action for action in legalMoves if action != 'Stop' ]
+      maxim = float("-inf")
+      for action in actions:
+        score = self.Min_Ghost(gameState.generateSuccessor(0,action), depth-1)
+        #print score[0]
+        if(score[0] > maxim):
+          maxim = score[0]
+          final_action = action
+      return [maxim, final_action]
+
+
+    def Min_Ghost(self, gameState, depth):
+      
+      final_action = Directions.STOP
+      if depth==0 or gameState.isWin() or gameState.isLose() :
+        return [self.evaluationFunction(gameState), Directions.STOP]
+      ghostAgents = gameState.getNumAgents()
+      minim = float("inf")
+      for i in range(1,gameState.getNumAgents()-1):
+        legalMoves = gameState.getLegalActions(i)
+        # Remove "STOP action
+        actions = [action for action in legalMoves if action != 'Stop' ]
+        for action in actions:
+          score =  self.Max_Pacman(gameState.generateSuccessor(i,action), depth)
+          if(score[0] < minim):
+            minim = score[0]
+            final_action = action
+      return [minim, final_action]
+
 
     def getAction(self, gameState):
-        """
-          Returns the minimax action from the current gameState using self.depth
-          and self.evaluationFunction.
+      """
+        Returns the minimax action from the current gameState using self.depth
+        and self.evaluationFunction.
 
-          Here are some method calls that might be useful when implementing minimax.
+        Here are some method calls that might be useful when implementing minimax.
 
-          gameState.getLegalActions(agentIndex):
-            Returns a list of legal actions for an agent
-            agentIndex=0 means Pacman, ghosts are >= 1
+        gameState.getLegalActions(agentIndex):
+          Returns a list of legal actions for an agent
+          agentIndex=0 means Pacman, ghosts are >= 1
 
-          gameState.generateSuccessor(agentIndex, action):
-            Returns the successor game state after an agent takes an action
+        gameState.generateSuccessor(agentIndex, action):
+          Returns the successor game state after an agent takes an action
 
-          gameState.getNumAgents():
-            Returns the total number of agents in the game
-        """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        gameState.getNumAgents():
+          Returns the total number of agents in the game
+      """
+      "*** YOUR CODE HERE ***"
+      print self.Max_Pacman(gameState, self.depth)[0], self.Max_Pacman(gameState, self.depth)[1]
+      return self.Max_Pacman(gameState, self.depth)[1]
+      util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
       Your minimax agent with alpha-beta pruning (question 3)
     """
+    def Max_Pacman(self, gameState, depth, alpha, beta):
+
+      final_action = Directions.STOP
+      if depth==0 or gameState.isWin() or gameState.isLose()  :
+        return [self.evaluationFunction(gameState), Directions.STOP]
+      legalMoves = gameState.getLegalActions(0)
+      # Remove "STOP action
+      actions = [action for action in legalMoves if action != 'Stop' ]
+      maxim = float("-inf")
+      for action in actions:
+        score = self.Min_Ghost(gameState.generateSuccessor(0,action), depth-1, alpha, beta)
+        #print score[0]
+        if(score[0] > maxim):
+          maxim = score[0]
+          final_action = action
+        if maxim >= beta:
+          return [maxim, final_action]
+        alpha = max(alpha, maxim)
+      return [maxim, final_action]
+
+
+    def Min_Ghost(self, gameState, depth, alpha, beta):
+      
+      final_action = Directions.STOP
+      if depth==0 or gameState.isWin() or gameState.isLose() :
+        return [self.evaluationFunction(gameState), Directions.STOP]
+      ghostAgents = gameState.getNumAgents()
+      minim = float("inf")
+      for i in range(1,gameState.getNumAgents()-1):
+        legalMoves = gameState.getLegalActions(i)
+        # Remove "STOP action
+        actions = [action for action in legalMoves if action != 'Stop' ]
+        for action in actions:
+          score =  self.Max_Pacman(gameState.generateSuccessor(i,action), depth, alpha, beta)
+          if(score[0] < minim):
+            minim = score[0]
+            final_action = action
+          if minim <= alpha:
+            return [minim, final_action]
+          beta = min(beta, minim)
+      return [minim, final_action]
 
     def getAction(self, gameState):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
+        print self.Max_Pacman(gameState, self.depth, float("-inf"), float("inf"))[0] 
+        print self.Max_Pacman(gameState, self.depth, float("-inf"), float("inf"))[1]
+        return self.Max_Pacman(gameState, self.depth, float("-inf"), float("inf"))[1]
         util.raiseNotDefined()
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
