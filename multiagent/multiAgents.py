@@ -29,7 +29,6 @@ class ReflexAgent(Agent):
       headers.
     """
 
-
     def getAction(self, gameState):
         """
         You do not need to change this method, but you're welcome to.
@@ -97,7 +96,7 @@ class ReflexAgent(Agent):
             mini = tmpdist 
             minicoord = coord
         #the successor score penalises for staying idle, rest of it considers minimum dist and dis from ghost
-        return successorGameState.getScore()+(1/(mini*ghostdist))
+        return successorGameState.getScore()+(ghostdist/mini)
 
 def scoreEvaluationFunction(currentGameState):
     """
