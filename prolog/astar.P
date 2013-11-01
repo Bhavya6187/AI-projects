@@ -1,0 +1,73 @@
+:- op(400,yfx,'#').
+split([],[],[]).
+split([A1#A2#A3],[A1#A2#A3],[]).
+split([A1#A2#A3,B1#B2#B3|R],[A1#A2#A3|Ra],[B1#B2#B3|Rb]) :-  split(R,Ra,Rb), write(R).
+
+mergesort([],[]).   
+mergesort([A1#A2#A3],[A1#A2#A3]).
+mergesort([A1#A2#A3,B1#B2#B3|R],S) :-  
+            split([A1#A2#A3,B1#B2#B3|R],L1,L2),write(L1), write(L2),
+            mergesort(L1,S1),
+            mergesort(L2,S2), write(S1), write(S2),
+            merge(S1,S2,S), write(S).
+  
+merge([A1#A2#A3],[],[A1#A2#A3]).
+merge([],[B1#B2#B3],[B1#B2#B3]).
+merge([A1#A2#A3|Ra],[B1#B2#B3|Rb],[A1#A2#A3|M]) :-  A3 =< B3, merge(Ra,[B1#B2#B3|Rb],M).
+merge([A1#A2#A3|Ra],[B1#B2#B3|Rb],[B1#B2#B3|M]) :-  A3 > B3,  merge([A1#A2#A3|Ra],Rb,M). 
+
+/*
+connected(a,b,left,1,2).
+connected(a,c,right,1,2).
+connected(b,d,left,1,5).
+connected(b,e,right,1,1).
+connected(c,f,left,1,3).
+connected(c,finish,right,1,0).
+connected(a,finish,left,1,0).
+connected(e,finish,left,1,0).
+*/
+
+connected(a#b#left#1#2).
+connected(a#c#right#1#2).
+connected(b#d#left#1#5).
+connected(b#e#right#1#1).
+connected(c#f#left#1#3).
+connected(c#finish#right#1#0).
+connected(a#finish#left#1#0).
+connected(e#finish#left#1#0).
+
+
+goal(finish).
+
+append([],L,L).
+append([X|L1],L2,[X|L3]) :- append(L1,L2,L3).
+
+
+member(X,[X|R]).
+member(X,[Y|R]):- member(X,R).
+
+even_elts([],[]).
+even_elts([X,_|L],[X|R]) :-
+      even_elts(L,R), 
+      write(L). 
+
+solve(Start, Solution) :- breadthfirst([[Start]],Solution).
+
+breadthfirst([[A#_#_#_|Path]|_], [A#_#_#_|Path]) :- goal(A).
+
+breadthfirst([Path|Paths], Solution) :-
+  successors(Path, NewPaths),
+  write(Path),  write(NewPaths),
+   append(Paths, NewPaths, Q),
+   mergesort(Q,Queue),
+   breadthfirst(Queue, Solution).
+
+
+successors([A#Adir#AF#AH|Path], NewPaths):- setof([[Next#Dir#F#NewCost] , [A#Adir#AF#AH|Path]],
+			    (connected(A#Next#Dir#F#H), not(member(Next,[A#_#_#_|Path]), write(A#Next#Dir#F#H)), NewCost is F+H+AH ),
+			     NewPaths),
+            !.
+
+successors(Path, []).      
+
+
