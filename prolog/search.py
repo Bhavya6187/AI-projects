@@ -252,64 +252,36 @@ def aStarSearch(problem, heuristic=nullHeuristic):
   6. path - This is used to return the path to the main function
   """
   from game import Directions
-  South = Directions.SOUTH
-  West = Directions.WEST
-  East = Directions.EAST
-  North = Directions.NORTH
+  from spade import pyxf
+  south = Directions.SOUTH
+  west = Directions.WEST
+  north = Directions.NORTH
+  east = Directions.EAST
+  
+  myXSB = pyxf.xsb("/home/dushyant/Downloads/XSB/bin/xsb")
+  myXSB.load("mazeastar.P")
+  myXSB.load("astar.P")
+  #result = myXSB.query("connected(start#A#D#E#F).")
+  result1 = myXSB.query("solve(start, D).")
+  print "Result is -"
+  print result1
+  path = result1[0]['D']
+  path2 = path[1:-1]
+  import re
+  path3 = re.split(',',path2)
+  final_path = []
+  i=1
+  for it in path3:
+    temp = re.split('#',it.replace(" ",""))
+    final_path.append(temp[1])
 
-  state_queue= util.PriorityQueue();
-  visited = set()
-  parents = dict()
-  direction = dict()
-  cost = dict()
-  path = list()
-  state_queue.push(problem.getStartState(),0)
-  parents[problem.getStartState()] = (-1,-1);
-  direction[problem.getStartState()] = "null";
-  
-  cost[problem.getStartState()] = 0;
-  i=0
-  grid = problem.getStartState()[1]
-  goalcost = float("inf")
-  goal = 0
-  " print cost"
-  "This while loop keep iterating till the queue gets empty or the goal is reached"
-  while not state_queue.isEmpty():
-    curr_state = state_queue.pop()
-    if curr_state in visited:
-      continue
-    children = problem.getSuccessors(curr_state)
-    visited.add(curr_state)
-    if(cost[curr_state] +  heuristic(curr_state,problem)> goalcost ):
-      break
-    "This for loop iterates over the successor to put the elements in queue and stop once the goal is reached"
-    for child in children:
-      i = i+1
-      if child[0] not in visited:
-        if problem.isGoalState(child[0]):
-          if(  cost[curr_state]+child[2] < goalcost):
-            goal = child
-            parents[child[0]]=curr_state
-            direction[child[0]] = child[1]
-            goalcost=child[2]+cost[curr_state]
-          break
-        else:  
-          state_queue.push(child[0],child[2] + heuristic(child[0],problem) +cost[curr_state])
-          cost[child[0]] = child[2] + cost[curr_state]
-          parents[child[0]]=curr_state
-          direction[child[0]]=child[1]
-  if(goal == 0):
-    return None
-  child = goal[0]
-  "Here we start to backtrack"
-  while direction[child] != "null":
-    path.append(direction[child])
-    child = parents[child]
-  path.reverse()
-  "print patti"
-  return path
-    
-  
+  del final_path[-1]
+  path4 = [word[:1].upper() + word[1:] for word in final_path]
+  path6 = path4[::-1]
+  print "Sending the path"
+  return path6
+ 
+
 # Abbreviations
 bfs = breadthFirstSearch
 dfs = depthFirstSearch

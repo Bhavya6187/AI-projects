@@ -1,5 +1,4 @@
 :- op(400,yfx,'#').
-
 /*Insertion Sorting New*/
 insert_sort(List,Sorted):-i_sort(List,[],Sorted).
 i_sort([],Acc,Acc).
@@ -10,7 +9,18 @@ insert([A#B#C#D|R],[[W#X#Y#Z|R2]|T],[[A#B#C#D|R],[W#X#Y#Z|R2]|T]):-D=<Z.
 insert([A#B#C#D|R],[],[[A#B#C#D|R]]).
 
 /* heuristic#cost */
+/*
+connected(a#b#left#2#1).
+connected(a#c#right#1#2).
+connected(b#d#left#5#1).
+connected(b#e#right#1#1).
+connected(c#f#left#2#3).
+connected(c#finish#right#0#2).
+connected(a#finish#left#0#8).
+connected(e#finish#left#0#1).
+*/
 
+goal(finish).
 
 append([],L,L).
 append([X|L1],L2,[X|L3]) :- append(L1,L2,L3).
@@ -18,16 +28,20 @@ append([X|L1],L2,[X|L3]) :- append(L1,L2,L3).
 member(X,[X|R]).
 member(X,[Y|R]):- member(X,R).
 
-solve(Start, Solution) :- astar([[Start#null#0#0]],Solution).
+solve(Start, Solution) :- breadthfirst([[Start#null#0#0]],Solution).
 
-astar([[E1#E2#E3#E4|Path]|_], [E1#E2#E3#E4|Path]) :- 
+breadthfirst([[E1#E2#E3#E4|Path]|_], [E1#E2#E3#E4|Path]) :- 
+                                        write('Goal='), write(E1), write('Path='), write(Path), 
                                         goal(E1).
 
-astar([Path|Paths], Solution) :-
+breadthfirst([Path|Paths], Solution) :-
+  write('Path='), write(Path),nl,
   successors(Path, NewPaths),
-   append(Paths, NewPaths, Q), 
+  write('Path='), write(Path), write('NewPaths='), write(NewPaths), nl,
+   append(Paths, NewPaths, Q), write('Q='), write(Q), nl,
    insert_sort(Q,Queue),
-   astar(Queue, Solution).
+   write('Queue='), write(Queue), nl,
+   breadthfirst(Queue, Solution).
 
 
 successors([A#Adir#AH#AG|Path], NewPaths):- 
@@ -36,11 +50,13 @@ successors([A#Adir#AH#AG|Path], NewPaths):-
 			                        (
                                 connected(A#Next#Dir#H#G), 
                                 N is G + AG,
-                                not(member(Next#Dir#H#_,[A#Adir#AH#AG|Path]))
+                                not(member(Next#Dir#H#_,[A#Adir#AH#AG|Path])),
+                                write('Successor='), write(A#Next#Dir#H#G)
                               ), 
 			                        NewPaths),
                         !.
 
 successors(Path, []).      
 
+f_function(F,G,AG) :-  F is G + AG.
 

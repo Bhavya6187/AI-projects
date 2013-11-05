@@ -179,13 +179,15 @@ class PositionSearchProblem(search.SearchProblem):
     parents[self.getStartState()] = (-1,-1);
     direction[self.getStartState()] = "null";
     start_state = self.getStartState()
-    
+   
+    # Creating the Maze files by using the BFS based search method
     f = open('maze.P', 'w')
     f1 = open('maze.pl', 'w')
-    g = open('mazeAstar.P', 'w')
+    g = open('mazeastar.P', 'w')
+    g.write(":- op(400,yfx,'#').\n")
     visited.add(self.getStartState());
     i=0
-    goal = 0
+    #goal = 0
     "This while loop keep iterating till the queue gets empty or the goal is reached"
     while not state_queue.isEmpty():
       curr_state = state_queue.pop()
@@ -197,16 +199,17 @@ class PositionSearchProblem(search.SearchProblem):
         #if child[0] not in visited:
         if child[0] not in visited:
             state_queue.push(child[0])
+            heur = abs( child[0][0] - goal[0] ) + abs( child[0][1] - goal[1] )
             #print "check"
             #print curr_state, child[0], child[1], child[2], (curr_state[0]-1)*h + curr_state[1], (child[0][0]-1)*h + child[0][1]
             if curr_state == start_state:
               f.write("connected(start, cell%d, %s).\n"% ((child[0][0]-1)*h + child[0][1], child[1].lower()))
               f1.write("connected(start, cell%d, %s).\n"% ((child[0][0]-1)*h + child[0][1], child[1].lower()))
-              g.write("connected(start, cell%d, %s, %d).\n"% ((child[0][0]-1)*h + child[0][1], child[1].lower(), child[2]))
+              g.write("connected(start#cell%d#%s#%d#%d).\n"% ((child[0][0]-1)*h + child[0][1], child[1].lower(), heur, child[2]))
             else:
               f.write("connected(cell%d, cell%d, %s).\n"% ((curr_state[0]-1)*h + curr_state[1], (child[0][0]-1)*h + child[0][1], child[1].lower()))
               f1.write("connected(cell%d, cell%d, %s).\n"% ((curr_state[0]-1)*h + curr_state[1], (child[0][0]-1)*h + child[0][1], child[1].lower()))
-              g.write("connected(cell%d, cell%d, %s, %d).\n"% ((curr_state[0]-1)*h + curr_state[1], (child[0][0]-1)*h + child[0][1], child[1].lower(), child[2]))
+              g.write("connected(cell%d#cell%d#%s#%d#%d).\n"% ((curr_state[0]-1)*h + curr_state[1], (child[0][0]-1)*h + child[0][1], child[1].lower(), heur, child[2]))
             #visited.add(child[0])
             #parents[child[0]]=curr_state 
             #direction[child[0]]=child[1]
@@ -215,7 +218,7 @@ class PositionSearchProblem(search.SearchProblem):
 
     f.write("goal(cell1,null).\n")
     f1.write("goal(cell1,null).\n")
-    g.write("goal(cell1,null).\n")
+    g.write("goal(cell1).\n")
     print "i=", i
 
 
