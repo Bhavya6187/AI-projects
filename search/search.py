@@ -133,8 +133,10 @@ def depthFirstSearch(problem):
     path.append(direction[child])
     child = parents[child]
   path.reverse()
+  print path
   return path
 
+@profile
 def breadthFirstSearch(problem):
   "Search the shallowest nodes in the search tree first. [p 81]"
   "*** YOUR CODE HERE ***"

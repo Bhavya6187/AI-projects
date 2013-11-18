@@ -50,7 +50,7 @@ class ReflexAgent(Agent):
         "Add more of your code here if you want to"
 
         return legalMoves[chosenIndex]
-
+    
     def evaluationFunction(self, currentGameState, action):
         """
         Design a better evaluation function here.
@@ -162,7 +162,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
       ghostAgents = gameState.getNumAgents()
       minim = float("inf")
       # loop for all the ghosts
-      for i in range(1,gameState.getNumAgents()-1):
+      for i in range(1,gameState.getNumAgents()):
+        print i
         legalMoves = gameState.getLegalActions(i)
         # Remove "STOP action
         actions = [action for action in legalMoves if action != 'Stop' ]
@@ -229,7 +230,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         return [self.evaluationFunction(gameState), Directions.STOP]
       ghostAgents = gameState.getNumAgents()
       minim = float("inf")
-      for i in range(1,gameState.getNumAgents()-1):
+      for i in range(1,gameState.getNumAgents()):
         legalMoves = gameState.getLegalActions(i)
         # Remove "STOP action
         actions = [action for action in legalMoves if action != 'Stop' ]
