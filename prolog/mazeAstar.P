@@ -1,0 +1,18 @@
+:- op(400,yfx,'#').
+connected(start#cell28#south#7#1).
+connected(start#cell23#west#7#1).
+connected(cell28#cell27#south#6#1).
+connected(cell23#cell17#west#6#1).
+connected(cell27#cell21#west#5#1).
+connected(cell17#cell11#west#5#1).
+connected(cell21#cell20#south#4#1).
+connected(cell11#cell5#west#4#1).
+connected(cell20#cell14#west#3#1).
+connected(cell5#cell4#south#3#1).
+connected(cell14#cell8#west#2#1).
+connected(cell4#cell3#south#2#1).
+connected(cell8#cell9#north#3#1).
+connected(cell8#cell7#south#1#1).
+connected(cell3#cell9#east#3#1).
+connected(cell7#cell1#west#0#1).
+goal(cell1).

@@ -1,0 +1,46 @@
+:- op(400,yfx,'#').
+
+/*Insertion Sorting New*/
+insert_sort(List,Sorted):-i_sort(List,[],Sorted).
+i_sort([],Acc,Acc).
+i_sort([[A#B#C#D|R]|T],Acc,Sorted):-insert([A#B#C#D|R],Acc,NAcc),i_sort(T,NAcc,Sorted).
+   
+insert([A#B#C#D|R],[[W#X#Y#Z|R2]|T],[[W#X#Y#Z|R2]|NT]):-D>Z,insert([A#B#C#D|R],T,NT).
+insert([A#B#C#D|R],[[W#X#Y#Z|R2]|T],[[A#B#C#D|R],[W#X#Y#Z|R2]|T]):-D=<Z.
+insert([A#B#C#D|R],[],[[A#B#C#D|R]]).
+
+/* heuristic#cost */
+
+
+append([],L,L).
+append([X|L1],L2,[X|L3]) :- append(L1,L2,L3).
+
+member(X,[X|R]).
+member(X,[Y|R]):- member(X,R).
+
+solve(Start, Solution) :- astar([[Start#null#0#0]],Solution).
+
+astar([[E1#E2#E3#E4|Path]|_], [E1#E2#E3#E4|Path]) :- 
+                                        goal(E1).
+
+astar([Path|Paths], Solution) :-
+  successors(Path, NewPaths),
+   append(Paths, NewPaths, Q), 
+   insert_sort(Q,Queue),
+   astar(Queue, Solution).
+
+
+successors([A#Adir#AH#AG|Path], NewPaths):- 
+                        setof(
+                              [Next#Dir#H#N , A#Adir#AH#AG|Path],
+			                        (
+                                connected(A#Next#Dir#H#G), 
+                                N is G + AG,
+                                not(member(Next#Dir#H#_,[A#Adir#AH#AG|Path]))
+                              ), 
+			                        NewPaths),
+                        !.
+
+successors(Path, []).      
+
+

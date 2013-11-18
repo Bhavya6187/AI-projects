@@ -1,0 +1,31 @@
+member(X,[X|R]).
+member(X,[Y|R]):- member(X,R).
+
+
+append([],X,X).
+append([X|Y],Z,[X|W]) :- append(Y,Z,W).
+
+/*
+ connected(a,b,left).
+ connected(a,c,right).
+ connected(b,d,left).
+ connected(b,e,right).
+ connected(c,f,left).
+ connected(c,finish,right).
+ connected(a,finish,left).
+ connected(e,finish,left).
+
+goal(finish, null).
+*/
+
+goal(cell1,null).
+
+dfs(Start, Visited, [Start], [Direction]):- goal(Start, Direction).
+dfs(Start, Visited, [Start|Rest], [StartDir|RestDir]):- connected(Start, Next, StartDir),
+                           not member(Next, Visited),
+                           dfs(Next, [Start|Visited], Rest, RestDir).
+
+                                      
+
+
+ 

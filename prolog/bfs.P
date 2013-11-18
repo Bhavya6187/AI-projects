@@ -1,0 +1,42 @@
+ /*
+connected(a,b,left).
+ connected(a,c,right).
+ connected(b,d,left).
+ connected(b,e,right).
+ connected(c,f,left).
+ connected(c,finish,right).
+ connected(a,finish,left).
+ connected(e,finish,left).
+                               
+goal(finish, null).
+*/
+
+append([],L,L).
+append([X|L1],L2,[X|L3]) :- append(L1,L2,L3).
+
+member(X,[X|R]).
+member(X,[Y|R]):- member(X,R).
+
+even_elts([],[]).
+even_elts([X,_|L],[X|R]) :-
+      even_elts(L,R). 
+
+solve(Start, Solution) :- breadthfirst([[Start]],Solution).
+                          %even_elts(Solution, Sol).
+
+breadthfirst([[A|Path]|_], [A|Path]) :- goal(A,_).
+
+breadthfirst([Path|Paths], Solution) :-
+  successors(Path, NewPaths),
+   append(Paths, NewPaths, Queue),
+   breadthfirst(Queue, Solution).
+
+
+successors([A|Path], NewPaths):- setof([Next, Dir, A|Path],
+			    (connected(A, Next, Dir), not(member(Next,[A|Path])) ),
+			     NewPaths),
+            !.
+
+successors(Path, []).      
+
+
