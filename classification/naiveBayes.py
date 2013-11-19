@@ -66,18 +66,18 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     To get the list of all possible features or labels, use self.features and 
     self.legalLabels.
     """
-    condCounts = {} 
+    condCounts = {}  #store the conditional counts 
     for i in range (0,len(trainingLabels)):
-      self.counts[trainingLabels[i]] += 1.0
-      for data in trainingData[i].keys():
+      self.counts[trainingLabels[i]] += 1.0 ##counting the number of training data of each label
+      for data in trainingData[i].keys():   ##iterating through all the data
         if trainingData[i][data] ==0:
-          self.condCounts[(data,0,trainingLabels[i])] +=1.0 
+          self.condCounts[(data,0,trainingLabels[i])] +=1.0    ## incrementing counts when attribute is 0 and label i
         else:
           self.condCounts[(data,1,trainingLabels[i])] +=1.0
       #print self.condCounts
 
     maxProb = 0.0
-    for k in kgrid:
+    for k in kgrid:  ## trying for all the loops in the kgrid 
       for label in self.legalLabels:
         for feature in trainingData[i].keys():
           condsum = self.condCounts[(feature,0, label)] + self.condCounts[(feature,1,label)]
@@ -88,18 +88,16 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         #print self.Probs[label]
         #print self.counts[label]
       guesses = []
-      guesses = self.classify(validationData)
+      guesses = self.classify(validationData)  ## calculate the labels for the validation dataset
       correctV = 0.0;
-      for i in range(0,len(validationLabels)) :
+      for i in range(0,len(validationLabels)) :## checking the accuracy for val dataset if it is greater than previious k change k.self to new k
         if guesses[i] == validationLabels[i] :
           correctV += 1.0
       #print guesses, validationLabels
       currentProb = correctV / (1.0*len(validationLabels))
-      print 'checking ', currentProb
       if maxProb < currentProb:
         maxProb = currentProb
         self.k = k
-    print 'k=' , self.k
     return self.k
 
     "*** YOUR CODE HERE ***"

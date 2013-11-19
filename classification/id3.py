@@ -15,7 +15,7 @@ class id3Classifier(classificationMethod.ClassificationMethod):
       self.counts[label]=0;\
 
     self.condCounts = util.Counter();
-
+    self.treeIter = 0
 
 
    def train(self, trainingData, trainingLabels, validationData, validationLabels):
@@ -28,10 +28,33 @@ class id3Classifier(classificationMethod.ClassificationMethod):
     self.attribute = trainingData[0].keys();
     self.tree = self.make_tree(trainingData)
     
+   def entropy(self, trainingData):
+
+     entropy = 0
+     counts = {}
+     for label in self.legalLabels:
+      counts[label]=0
+     c = 0
+     maxC = 0;
+     for i in range (0,len(self.trainingLabels)):
+       if trainingData[i] != None:  
+         counts[self.trainingLabels[i]] += 1.0
+         c+=1
+     for label in self.legalLabels:
+       if c == 0 or counts[label] == 0:
+         continue
+       entropy += (-1*counts[label]/(1.0*c) )* math.log( counts[label] / (1.0*c) ) 
+       if counts[label] > 0:
+         maxC = label
+
+     return entropy, maxC
+
+
    def chooseBest(self,trainingData):
     
-   # print len(trainingLabels)
-    condCounts = {}
+    #print len(trainingLabels)
+    finalAttr = (-1, -1)
+    self.condCounts = util.Counter();
     empty = False;
     trainingLabels = self.trainingLabels;
     for i in range (0,len(trainingLabels)):
@@ -67,15 +90,16 @@ class id3Classifier(classificationMethod.ClassificationMethod):
         if attFalse != 0:
           if (self.condCounts[(data, 0, label)]) != 0:
             gf2 += (self.condCounts[(data, 0, label)]) * math.log( (self.condCounts[(data, 0, label)]) /  (1.0*attFalse) ) / (1.0*attFalse)
-        
+      
+      if attTrue + attFalse == 0:
+        continue
       gainFactor = (attTrue*gf1 + attFalse*gf2) / (1.0*(attTrue + attFalse))
-      #print 'attr = ', data, attTrue, attFalse,  '  gain =', gainFactor
       if mingainFactor < gainFactor :
         mingainFactor = gainFactor
         finalAttr = data
+      #print 'attr = ', data, attTrue, attFalse,  '  gain =', gainFactor, ' ', mingainFactor
       
 #    print 'min gain =', mingainFactor
-#    print finalAttr
     return finalAttr
 
    	
@@ -88,11 +112,17 @@ class id3Classifier(classificationMethod.ClassificationMethod):
     tdata0 = [];
     tdata1 = [];
     tree = {};
+    self.treeIter +=1
+    print self.treeIter 
+    [entropy, maxC] = self.entropy(tdata)
+    if entropy == 0:
+      print 'entropy zero reached', maxC 
+      return maxC
     
     best = self.chooseBest(tdata);
     print best
     
-#   pdb.set_trace()
+    #pdb.set_trace()
     for i in  range(0,len(trainingLabels)):
       if tdata[i] == None:
         tdata0.insert(i,None);
@@ -103,18 +133,15 @@ class id3Classifier(classificationMethod.ClassificationMethod):
         tdata0[i][best]=None;
         tdata1.insert(i, None);
         count0+=1;
-#        print tdata0[i]
-#        print tdata[i];
-#        print tdata1[i];
       else:
         tdata1.insert(i, tdata[i]);
         tdata1[i][best]=None;
         tdata0.insert(i, None);
         count1+=1;
 
- #   print tdata1;
-      
+    tree = {best:{}}
     tree[best][0] = self.make_tree(tdata0);
+    print tree
     tree[best][1] = self.make_tree(tdata1);
-    #print tree;
+    print tree
     return tree;
