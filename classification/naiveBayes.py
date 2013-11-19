@@ -135,9 +135,10 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
       #print self.Probs[label]
       logJoint[label] = math.log(self.Probs[label])
       for data in datum.keys():
-        if datum[data] == 0:
+        if datum[data] == 0 and self.condProbs[(data,0,label)]!=0:
           logJoint[label] += math.log(self.condProbs[(data,0,label)])
-        else:
+        #else:
+        if datum[data] == 1 and self.condProbs[(data,1,label)]!=0:
           logJoint[label] += math.log(self.condProbs[(data,1,label)])
     return logJoint
  
@@ -152,12 +153,23 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     
     Note: you may find 'self.features' a useful way to loop through all possible features
     """
+    
+    print 'Infeatures odd'
     featuresOdds = []
-       
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    oddsCalc = dict()   
+    for feature in self.features:
+      a1 = self.condProbs[(feature, 1, label1)] 
+      a2 = self.condProbs[(feature, 1, label2)]
+      oddsCalc[feature] = a1/(1.0*a2) 
+    
+    sortedF = sorted(oddsCalc, key=oddsCalc.get)
 
+    print 'oddsCalc = ', oddsCalc
+    print 'sortedCalc', sortedF
+
+    featuresOdds = sortedF[0:99]
     return featuresOdds
+
     
 
     

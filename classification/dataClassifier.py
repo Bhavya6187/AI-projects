@@ -68,10 +68,33 @@ def enhancedFeatureExtractorDigit(datum):
   
   ##
   """
-  features =  basicFeatureExtractorDigit(datum)
+  #import math
+  features1 =  basicFeatureExtractorDigit(datum)
+  featureNumber = 0
+  total = 784
+  a = datum.getPixels()
+  histx = util.Counter()
+  histy = util.Counter()
+  for x in range(DIGIT_DATUM_WIDTH):
+    histx[x] = 0
+    histy[x] = 0
+    features1[784+x] = 0
+    features1[784+28+x] = 0
 
-  "*** YOUR CODE HERE ***"
-  
+  for x in range(DIGIT_DATUM_WIDTH):
+    for y in range(DIGIT_DATUM_HEIGHT):
+      if datum.getPixel(x, y) > 0:
+        histx[x] += 1
+        features1[784+x] +=1
+ 
+  for x in range(DIGIT_DATUM_WIDTH):
+    for y in range(DIGIT_DATUM_HEIGHT):
+      if datum.getPixel(x, y) > 0:
+        histy[y] += 1 
+        features1[784+28+y] +=1
+ 
+  features = (features1)
+  print 'length of new features=', len(histx + histy), len(features), len(histx), len(histy), len(features1)
   return features
 
 
