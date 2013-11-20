@@ -6,124 +6,119 @@ import pdb
 class id3Classifier(classificationMethod.ClassificationMethod):
 
    def __init__(self, legalLabels):
-    self.legalLabels = legalLabels
-    self.type = "id3"
-    self.tree = {};
-    self.counts = {};
-    self.attribute = {};
-    self.treelist=[];
-    for label in self.legalLabels:
-      self.counts[label]=0;\
-
-    self.condCounts = util.Counter();
-    self.treeIter = 0
+     self.legalLabels = legalLabels
+     self.type = "id3"
+     self.tree = {};
+     self.counts = {};
+     self.attribute = {};
+     self.treelist=[];
+     for label in self.legalLabels:
+       self.counts[label]=0;\
+     
+     self.condCounts = util.Counter();
+     self.treeIter = 0
 
 
    def train(self, trainingData, trainingLabels, validationData, validationLabels):
-    """
-    Outside shell to call your method. Do not modify this method.
-    """  
-      
-    self.trainingData = trainingData;
-    self.trainingLabels = trainingLabels;
-    self.attribute = trainingData[0].keys();
-    self.tree = self.make_tree(trainingData);
-    self.probmap = self.makeMap(trainingData);
-    #print self.tree;
-    self.treelister(self.tree);
-    #print "Tree list is", self.treelist;
+     """
+     Outside shell to call your method. Do not modify this method.
+     """  
+     self.trainingData = trainingData;
+     self.trainingLabels = trainingLabels;
+     self.attribute = trainingData[0].keys();
+     self.tree = self.make_tree(trainingData);
+     self.probmap = self.makeMap(trainingData);
+     #print self.tree;
+     self.treelister(self.tree);
+     #print "Tree list is", self.treelist;
    
    def treelister(self,tree):
 
-    if(tree in self.legalLabels ):
-      return;
-    for(key,value) in tree:
-      #print self.treelist;
-      pair = (key,value);
-      (self.treelist).append(pair);
-      self.treelister(tree[(key,value)][0]);
-      self.treelister(tree[(key,value)][1]);
+     if(tree in self.legalLabels ):
+       return;
+     for(key,value) in tree:
+       #print self.treelist;
+       pair = (key,value);
+       (self.treelist).append(pair);
+       self.treelister(tree[(key,value)][0]);
+       self.treelister(tree[(key,value)][1]);
 
    def traverse(self,tree,datum):
-    if(tree in self.legalLabels ):
-      return tree;
-    for key,value in tree:
-       val = self.traverse(tree[(key,value)][datum[(key,value)]],datum);
-    return val;
+     if(tree in self.legalLabels ):
+       return tree;
+     for key,value in tree:
+        val = self.traverse(tree[(key,value)][datum[(key,value)]],datum);
+     return val;
     
+   
    def prune(self,tree):
-
-    guesses = []
-    
-    if tree not in self.legalLabels:
-      for(key,value) in tree:
-        ltree = tree[(key,value)][0];
-        rtree = tree[(key,value)][1];
-
-        tree = self.prune(tree,(key,value),0);
-        tree = self.prune(tree,(key,value),1);
-      
-    guesses = self.classifyValidation(validationData,tree)  ## calculate the labels for the validation dataset
-    correctV = 0.0;
-    for i in range(0,len(validationLabels)) :## checking the accuracy for val dataset if it is greater than previious k change k.self to new k
-      if guesses[i] == validationLabels[i] :
-        correctV += 1.0
-    #print guesses, validationLabels
-    currentProb = correctV / (1.0*len(validationLabels))
-    if maxProb < currentProb:
-      maxProb = currentProb
-    return 
+     guesses = []
+     if tree not in self.legalLabels:
+       for(key,value) in tree:
+         ltree = tree[(key,value)][0];
+         rtree = tree[(key,value)][1];
+         tree = self.prune(tree,(key,value),0);
+         tree = self.prune(tree,(key,value),1);
+       
+     guesses = self.classifyValidation(validationData,tree)  ## calculate the labels for the validation dataset
+     correctV = 0.0;
+     for i in range(0,len(validationLabels)) :## checking the accuracy for val dataset if it is greater than previious k change k.self to new k
+       if guesses[i] == validationLabels[i] :
+         correctV += 1.0
+     #print guesses, validationLabels
+     currentProb = correctV / (1.0*len(validationLabels))
+     if maxProb < currentProb:
+       maxProb = currentProb
+     return 
  
 
    def classifyValidation(self, testData, tree):
-    """
-    Classify the data based on the posterior distribution over labels.
-    
-    You shouldn't modify this method.
-    """
-    guesses = []
-    for datum in testData:
-    #  print datum;
-      guesses.append(self.traverse(tree,datum));
-    return guesses
+     """
+     Classify the data based on the posterior distribution over labels.
+     
+     You shouldn't modify this method.
+     """
+     guesses = []
+     for datum in testData:
+     #  print datum;
+       guesses.append(self.traverse(tree,datum));
+     return guesses
 
    def makeMap(self, trainingData):
-    trainingLabels = self.trainingLabels;
-    probmap = {};
+     trainingLabels = self.trainingLabels;
+     probmap = {};
+     for data in self.attribute:
+       probmap[data] = 0;
+     for i in range (0,len(trainingLabels)):
+       for data in trainingData[i].keys():
+         if(trainingData[i][data] == 1):
+           probmap[data] += 1;
+     
+     for data in probmap.keys():
+       probmap[data] /= len(trainingLabels);
+     return probmap;
 
-    for data in self.attribute:
-      probmap[data] = 0;
-    for i in range (0,len(trainingLabels)):
-      for data in trainingData[i].keys():
-        if(trainingData[i][data] == 1):
-          probmap[data] += 1;
-
-    for data in probmap.keys():
-      probmap[data] /= len(trainingLabels);
-    return probmap;
-
+   
    def classify(self, testData):
-    """
-    Classify the data based on the posterior distribution over labels.
-    
-    You shouldn't modify this method.
-    """
-    guesses = []
-    for datum in testData:
-    #  print datum;
-      guesses.append(self.traverse(self.tree,datum));
-    return guesses
+     """
+     Classify the data based on the posterior distribution over labels.
+     """
+     guesses = []
+     for datum in testData:
+     #  print datum;
+       guesses.append(self.traverse(self.tree,datum));
+     return guesses
 
+   
    def traverse(self,tree,datum):
-
      if(tree in self.legalLabels ):
        return tree;
      for key,value in tree:
         val = self.traverse(tree[(key,value)][datum[(key,value)]],datum);
      return val;
 
+   
    def entropy(self, trainingData):
-
      entropy = 0
      counts = {}
      for label in self.legalLabels:
@@ -140,7 +135,6 @@ class id3Classifier(classificationMethod.ClassificationMethod):
        entropy += (-1*counts[label]/(1.0*c) )* math.log( counts[label] / (1.0*c) ) 
        if counts[label] > 0:
          maxC = label
-
      return entropy, maxC
 
 
@@ -199,7 +193,6 @@ class id3Classifier(classificationMethod.ClassificationMethod):
    	
 
    def make_tree(self, tdata):
-    
     trainingLabels=self.trainingLabels;
     count0 = 0;
     count1 = 0;
@@ -215,7 +208,6 @@ class id3Classifier(classificationMethod.ClassificationMethod):
     
     best = self.chooseBest(tdata);
 #    print best
-    
     #pdb.set_trace()
     for i in  range(0,len(trainingLabels)):
       if tdata[i] == None:
@@ -232,7 +224,6 @@ class id3Classifier(classificationMethod.ClassificationMethod):
         tdata1[i][best]=None;
         tdata0.insert(i, None);
         count1+=1;
-
     tree = {best:{}}
     tree[best][0] = self.make_tree(tdata0);
 #    print tree
