@@ -8,4 +8,6 @@
 
 def q3():
   "*** YOUR CODE HERE ***"
+  print 'd'
+  return 'd'
 
