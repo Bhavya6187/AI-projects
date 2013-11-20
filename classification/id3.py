@@ -24,14 +24,15 @@ class id3Classifier(classificationMethod.ClassificationMethod):
      Outside shell to call your method. Do not modify this method.
      """  
      self.trainingData = trainingData;
-     self.trainingLabels = trainingLabels;
+     self.trainingLabels = trainingLabels; 
      self.attribute = trainingData[0].keys();
      self.tree = self.make_tree(trainingData);
      self.probmap = self.makeMap(trainingData);
      #print self.tree;
      self.treelister(self.tree);
      #print "Tree list is", self.treelist;
-   
+
+#lists all the elements in the trees, is used for pruning
    def treelister(self,tree):
 
      if(tree in self.legalLabels ):
@@ -42,7 +43,7 @@ class id3Classifier(classificationMethod.ClassificationMethod):
        (self.treelist).append(pair);
        self.treelister(tree[(key,value)][0]);
        self.treelister(tree[(key,value)][1]);
-
+   #This function traverses the tree
    def traverse(self,tree,datum):
      if(tree in self.legalLabels ):
        return tree;
@@ -50,7 +51,7 @@ class id3Classifier(classificationMethod.ClassificationMethod):
         val = self.traverse(tree[(key,value)][datum[(key,value)]],datum);
      return val;
     
-   
+   #function for pruning the tree
    def prune(self,tree):
      guesses = []
      if tree not in self.legalLabels:
@@ -71,7 +72,7 @@ class id3Classifier(classificationMethod.ClassificationMethod):
        maxProb = currentProb
      return 
  
-
+   #function to run on validation data in order to prune the tree
    def classifyValidation(self, testData, tree):
      """
      Classify the data based on the posterior distribution over labels.
@@ -84,6 +85,7 @@ class id3Classifier(classificationMethod.ClassificationMethod):
        guesses.append(self.traverse(tree,datum));
      return guesses
 
+   #This makes the probablity map for the function
    def makeMap(self, trainingData):
      trainingLabels = self.trainingLabels;
      probmap = {};
@@ -98,7 +100,7 @@ class id3Classifier(classificationMethod.ClassificationMethod):
        probmap[data] /= len(trainingLabels);
      return probmap;
 
-   
+  #function to be called from outside in order to evaluate the accuracy 
    def classify(self, testData):
      """
      Classify the data based on the posterior distribution over labels.
@@ -109,7 +111,7 @@ class id3Classifier(classificationMethod.ClassificationMethod):
        guesses.append(self.traverse(self.tree,datum));
      return guesses
 
-   
+   #Traverses over the whole tree
    def traverse(self,tree,datum):
      if(tree in self.legalLabels ):
        return tree;
@@ -117,7 +119,7 @@ class id3Classifier(classificationMethod.ClassificationMethod):
         val = self.traverse(tree[(key,value)][datum[(key,value)]],datum);
      return val;
 
-   
+   #Calculated the entropy for the attribute
    def entropy(self, trainingData):
      entropy = 0
      counts = {}
@@ -137,7 +139,7 @@ class id3Classifier(classificationMethod.ClassificationMethod):
          maxC = label
      return entropy, maxC
 
-
+   #This function returns the best attribute
    def chooseBest(self,trainingData):
     
     #print len(trainingLabels)
@@ -191,7 +193,7 @@ class id3Classifier(classificationMethod.ClassificationMethod):
     return finalAttr
 
    	
-
+   #This function makes the decision tree recursively and returns it
    def make_tree(self, tdata):
     trainingLabels=self.trainingLabels;
     count0 = 0;
