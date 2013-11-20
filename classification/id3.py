@@ -11,6 +11,7 @@ class id3Classifier(classificationMethod.ClassificationMethod):
     self.tree = {};
     self.counts = {};
     self.attribute = {};
+    self.treelist=[];
     for label in self.legalLabels:
       self.counts[label]=0;\
 
@@ -26,8 +27,101 @@ class id3Classifier(classificationMethod.ClassificationMethod):
     self.trainingData = trainingData;
     self.trainingLabels = trainingLabels;
     self.attribute = trainingData[0].keys();
-    self.tree = self.make_tree(trainingData)
+    self.tree = self.make_tree(trainingData);
+    self.probmap = self.makeMap(trainingData);
+    #print self.tree;
+    self.treelister(self.tree);
+    #print "Tree list is", self.treelist;
+   
+   def treelister(self,tree):
+
+    if(tree in self.legalLabels ):
+      return;
+    for(key,value) in tree:
+      #print self.treelist;
+      pair = (key,value);
+      (self.treelist).append(pair);
+      self.treelister(tree[(key,value)][0]);
+      self.treelister(tree[(key,value)][1]);
+
+   def traverse(self,tree,datum):
+    if(tree in self.legalLabels ):
+      return tree;
+    for key,value in tree:
+       val = self.traverse(tree[(key,value)][datum[(key,value)]],datum);
+    return val;
     
+   def prune(self,tree):
+
+    guesses = []
+    
+    if tree not in self.legalLabels:
+      for(key,value) in tree:
+        ltree = tree[(key,value)][0];
+        rtree = tree[(key,value)][1];
+
+        tree = self.prune(tree,(key,value),0);
+        tree = self.prune(tree,(key,value),1);
+      
+    guesses = self.classifyValidation(validationData,tree)  ## calculate the labels for the validation dataset
+    correctV = 0.0;
+    for i in range(0,len(validationLabels)) :## checking the accuracy for val dataset if it is greater than previious k change k.self to new k
+      if guesses[i] == validationLabels[i] :
+        correctV += 1.0
+    #print guesses, validationLabels
+    currentProb = correctV / (1.0*len(validationLabels))
+    if maxProb < currentProb:
+      maxProb = currentProb
+    return 
+ 
+
+   def classifyValidation(self, testData, tree):
+    """
+    Classify the data based on the posterior distribution over labels.
+    
+    You shouldn't modify this method.
+    """
+    guesses = []
+    for datum in testData:
+    #  print datum;
+      guesses.append(self.traverse(tree,datum));
+    return guesses
+
+   def makeMap(self, trainingData):
+    trainingLabels = self.trainingLabels;
+    probmap = {};
+
+    for data in self.attribute:
+      probmap[data] = 0;
+    for i in range (0,len(trainingLabels)):
+      for data in trainingData[i].keys():
+        if(trainingData[i][data] == 1):
+          probmap[data] += 1;
+
+    for data in probmap.keys():
+      probmap[data] /= len(trainingLabels);
+    return probmap;
+
+   def classify(self, testData):
+    """
+    Classify the data based on the posterior distribution over labels.
+    
+    You shouldn't modify this method.
+    """
+    guesses = []
+    for datum in testData:
+    #  print datum;
+      guesses.append(self.traverse(self.tree,datum));
+    return guesses
+
+   def traverse(self,tree,datum):
+
+     if(tree in self.legalLabels ):
+       return tree;
+     for key,value in tree:
+        val = self.traverse(tree[(key,value)][datum[(key,value)]],datum);
+     return val;
+
    def entropy(self, trainingData):
 
      entropy = 0
@@ -113,14 +207,14 @@ class id3Classifier(classificationMethod.ClassificationMethod):
     tdata1 = [];
     tree = {};
     self.treeIter +=1
-    print self.treeIter 
+    #print self.treeIter 
     [entropy, maxC] = self.entropy(tdata)
     if entropy == 0:
-      print 'entropy zero reached', maxC 
+     # print 'entropy zero reached', maxC 
       return maxC
     
     best = self.chooseBest(tdata);
-    print best
+#    print best
     
     #pdb.set_trace()
     for i in  range(0,len(trainingLabels)):
@@ -141,7 +235,7 @@ class id3Classifier(classificationMethod.ClassificationMethod):
 
     tree = {best:{}}
     tree[best][0] = self.make_tree(tdata0);
-    print tree
+#    print tree
     tree[best][1] = self.make_tree(tdata1);
-    print tree
+#    print tree
     return tree;
