@@ -65,12 +65,12 @@ class ValueIterationAgent(ValueEstimationAgent):
       to derive it on the fly.
     """
     "*** YOUR CODE HERE ***"
-    qValue = 0
-    transitions = self.mdp.getTransitionStatesAndProbs( state, action)
-    for transition in transitions:
-        (nextState, prob) = transition
-        qValue += prob*( self.mdp.getReward(state,action,nextState) + self.discount*self.values[nextState])
-    return qValue
+    qval = 0
+    steps = self.mdp.getTransitionStatesAndProbs( state, action)
+    for step in steps:
+        (nextStep, prob) = step
+        qval += prob*( self.mdp.getReward(state,action,nextStep) + self.discount*self.values[nextStep])
+    return qval
     util.raiseNotDefined()
 
   def getPolicy(self, state):
